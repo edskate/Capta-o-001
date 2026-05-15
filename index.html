@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captação de Show em Tempo Real</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#050505;
+  color:white;
+  padding:15px;
+}
+
+header,.card{
+  background:#111;
+  border:2px solid #00f5ff;
+  border-radius:18px;
+  padding:15px;
+  margin-bottom:15px;
+  box-shadow:0 0 18px #00f5ff55;
+}
+
+header{text-align:center}
+
+h1{color:#00f5ff}
+h2{color:#ffd700}
+
+video{
+  width:100%;
+  max-height:420px;
+  background:#000;
+  border:2px solid #ffd700;
+  border-radius:15px;
+}
+
+.timer{
+  font-size:42px;
+  text-align:center;
+  color:#00ff88;
+  font-weight:bold;
+  margin:15px 0;
+  text-shadow:0 0 12px #00ff88;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+input,textarea{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #00f5ff;
+  background:#000;
+  color:white;
+}
+
+textarea{min-height:70px}
+
+button{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:8px;
+}
+
+.start{background:#00ff88;color:#000}
+.stop{background:#ff2b2b;color:white}
+.pdf{background:#ffd700;color:#000}
+.clear{background:#555;color:white}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+th,td{
+  border:1px solid #555;
+  padding:8px;
+  text-align:left;
+}
+
+th{
+  background:#222;
+  color:#00f5ff;
+}
+
+@media(max-width:700px){
+  .grid{grid-template-columns:1fr}
+}
+
+@media print{
+  body{
+    background:white!important;
+    color:black!important;
+  }
+
+  header,.card{
+    background:white!important;
+    color:black!important;
+    border:1px solid black!important;
+    box-shadow:none!important;
+  }
+
+  video,.no-print,button{
+    display:none!important;
+  }
+
+  h1,h2,.timer,th,td{
+    color:black!important;
+    text-shadow:none!important;
+  }
+
+  table,th,td{
+    border:1px solid black!important;
+  }
+
+  th{
+    background:#eee!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🎥 Captação de Show em Tempo Real</h1>
+  <p>Sistema para filmar, marcar início, calcular tempo total do show e salvar relatório em PDF</p>
+  <div id="relogio"></div>
+</header>
+
+<section class="card no-print">
+  <h2>🎬 Vídeo ao Vivo</h2>
+  <video id="video" autoplay muted playsinline></video>
+
+  <button class="start" onclick="abrirCamera()">📷 Ativar Câmera</button>
+  <button class="stop" onclick="pararCamera()">⛔ Parar Câmera</button>
+</section>
+
+<section class="card">
+  <h2>⏱ Cronômetro do Show</h2>
+
+  <div class="timer" id="timer">00:00:00</div>
+
+  <div class="grid">
+    <div>
+      <label>Nome do Show</label>
+      <input type="text" id="nomeShow" placeholder="Ex: Pocket Show Michael">
+    </div>
+
+    <div>
+      <label>Local</label>
+      <input type="text" id="localShow" placeholder="Ex: Teatro / Evento">
+    </div>
+
+    <div>
+      <label>Data do Show</label>
+      <input type="date" id="dataShow">
+    </div>
+
+    <div>
+      <label>Responsável</label>
+      <input type="text" id="responsavel" placeholder="Ex: Edy">
+    </div>
+  </div>
+
+  <br>
+
+  <button class="start" onclick="iniciarShow()">▶ Iniciar Show</button>
+  <button class="stop" onclick="finalizarShow()">■ Finalizar Show</button>
+  <button class="pdf" onclick="window.print()">📄 Salvar Relatório em PDF</button>
+  <button class="clear" onclick="limparHistorico()">🗑 Limpar Histórico</button>
+
+  <p><strong>Início:</strong> <span id="inicioTexto">-</span></p>
+  <p><strong>Fim:</strong> <span id="fimTexto">-</span></p>
+  <p><strong>Tempo Total:</strong> <span id="totalTexto">00:00:00</span></p>
+
+  <label>Observações do Show</label>
+  <textarea id="observacoes" placeholder="Descreva atrasos, pausas, qualidade do tempo, início real, finalização e detalhes técnicos..."></textarea>
+</section>
+
+<section class="card">
+  <h2>📋 Histórico de Shows Registrados</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Show</th>
+        <th>Local</th>
+        <th>Data</th>
+        <th>Início</th>
+        <th>Fim</th>
+        <th>Tempo Total</th>
+        <th>Responsável</th>
+        <th>Observações</th>
+      </tr>
+    </thead>
+    <tbody id="historico"></tbody>
+  </table>
+</section>
+
+<script>
+let stream = null;
+let inicio = null;
+let fim = null;
+let intervalo = null;
+let segundos = 0;
+
+let historico = JSON.parse(localStorage.getItem("historicoShowsVideo")) || [];
+
+function atualizarRelogio(){
+  document.getElementById("relogio").innerText =
+  "Tempo real: " + new Date().toLocaleString("pt-BR");
+}
+setInterval(atualizarRelogio,1000);
+atualizarRelogio();
+
+async function abrirCamera(){
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:true,
+      audio:true
+    });
+
+    document.getElementById("video").srcObject = stream;
+  }catch(e){
+    alert("Não foi possível acessar a câmera. Verifique a permissão do navegador.");
+  }
+}
+
+function pararCamera(){
+  if(stream){
+    stream.getTracks().forEach(track => track.stop());
+    document.getElementById("video").srcObject = null;
+  }
+}
+
+function formatarTempo(total){
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+
+  return String(h).padStart(2,"0") + ":" +
+         String(m).padStart(2,"0") + ":" +
+         String(s).padStart(2,"0");
+}
+
+function iniciarShow(){
+  if(intervalo){
+    alert("O show já está em andamento.");
+    return;
+  }
+
+  inicio = new Date();
+  fim = null;
+  segundos = 0;
+
+  document.getElementById("inicioTexto").innerText = inicio.toLocaleString("pt-BR");
+  document.getElementById("fimTexto").innerText = "-";
+  document.getElementById("totalTexto").innerText = "00:00:00";
+
+  intervalo = setInterval(()=>{
+    segundos++;
+    document.getElementById("timer").innerText = formatarTempo(segundos);
+    document.getElementById("totalTexto").innerText = formatarTempo(segundos);
+  },1000);
+}
+
+function finalizarShow(){
+  if(!intervalo){
+    alert("Inicie o show primeiro.");
+    return;
+  }
+
+  clearInterval(intervalo);
+  intervalo = null;
+
+  fim = new Date();
+
+  document.getElementById("fimTexto").innerText = fim.toLocaleString("pt-BR");
+
+  const registro = {
+    nomeShow: document.getElementById("nomeShow").value || "-",
+    localShow: document.getElementById("localShow").value || "-",
+    dataShow: document.getElementById("dataShow").value || "-",
+    responsavel: document.getElementById("responsavel").value || "-",
+    inicio: inicio.toLocaleString("pt-BR"),
+    fim: fim.toLocaleString("pt-BR"),
+    total: formatarTempo(segundos),
+    observacoes: document.getElementById("observacoes").value || "-"
+  };
+
+  historico.push(registro);
+  localStorage.setItem("historicoShowsVideo", JSON.stringify(historico));
+
+  mostrarHistorico();
+
+  alert("Show finalizado e salvo no histórico.");
+}
+
+function mostrarHistorico(){
+  const tabela = document.getElementById("historico");
+  tabela.innerHTML = "";
+
+  historico.forEach(item=>{
+    tabela.innerHTML += `
+      <tr>
+        <td>${item.nomeShow}</td>
+        <td>${item.localShow}</td>
+        <td>${item.dataShow}</td>
+        <td>${item.inicio}</td>
+        <td>${item.fim}</td>
+        <td><strong>${item.total}</strong></td>
+        <td>${item.responsavel}</td>
+        <td>${item.observacoes}</td>
+      </tr>
+    `;
+  });
+}
+
+function limparHistorico(){
+  if(confirm("Deseja apagar todo o histórico?")){
+    historico = [];
+    localStorage.removeItem("historicoShowsVideo");
+    mostrarHistorico();
+  }
+}
+
+mostrarHistorico();
+</script>
+
+</body>
+</html>
