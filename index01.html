@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Captação de Show em Tempo Real</title>
+<title>Captação de Show - Câmera Frontal</title>
 
 <style>
 body{
@@ -42,13 +42,6 @@ video{
   color:#00ff88;
   font-weight:bold;
   margin:15px 0;
-  text-shadow:0 0 12px #00ff88;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
 }
 
 input,textarea{
@@ -58,17 +51,19 @@ input,textarea{
   border:1px solid #00f5ff;
   background:#000;
   color:white;
+  margin-bottom:10px;
 }
 
-textarea{min-height:70px}
+textarea{min-height:80px}
 
 button{
-  padding:12px;
+  width:100%;
+  padding:13px;
   border:none;
   border-radius:12px;
   font-weight:bold;
-  cursor:pointer;
   margin-top:8px;
+  cursor:pointer;
 }
 
 .start{background:#00ff88;color:#000}
@@ -86,6 +81,7 @@ th,td{
   border:1px solid #555;
   padding:8px;
   text-align:left;
+  vertical-align:top;
 }
 
 th{
@@ -93,8 +89,12 @@ th{
   color:#00f5ff;
 }
 
-@media(max-width:700px){
-  .grid{grid-template-columns:1fr}
+.info{
+  background:#001b22;
+  border:1px solid #00f5ff;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:10px;
 }
 
 @media print{
@@ -116,7 +116,6 @@ th{
 
   h1,h2,.timer,th,td{
     color:black!important;
-    text-shadow:none!important;
   }
 
   table,th,td{
@@ -134,15 +133,21 @@ th{
 
 <header>
   <h1>🎥 Captação de Show em Tempo Real</h1>
-  <p>Sistema para filmar, marcar início, calcular tempo total do show e salvar relatório em PDF</p>
+  <p>Câmera frontal do celular + cronômetro + relatório em PDF</p>
   <div id="relogio"></div>
 </header>
 
 <section class="card no-print">
-  <h2>🎬 Vídeo ao Vivo</h2>
+  <h2>📱 Câmera Frontal</h2>
+
+  <div class="info">
+    O histórico fica salvo no navegador do celular.  
+    O vídeo aparece ao vivo, mas não é gravado automaticamente.
+  </div>
+
   <video id="video" autoplay muted playsinline></video>
 
-  <button class="start" onclick="abrirCamera()">📷 Ativar Câmera</button>
+  <button class="start" onclick="abrirCamera()">📷 Ativar Câmera Frontal</button>
   <button class="stop" onclick="pararCamera()">⛔ Parar Câmera</button>
 </section>
 
@@ -151,29 +156,17 @@ th{
 
   <div class="timer" id="timer">00:00:00</div>
 
-  <div class="grid">
-    <div>
-      <label>Nome do Show</label>
-      <input type="text" id="nomeShow" placeholder="Ex: Pocket Show Michael">
-    </div>
+  <label>Nome do Show</label>
+  <input type="text" id="nomeShow" placeholder="Ex: Pocket Show Michael">
 
-    <div>
-      <label>Local</label>
-      <input type="text" id="localShow" placeholder="Ex: Teatro / Evento">
-    </div>
+  <label>Local</label>
+  <input type="text" id="localShow" placeholder="Ex: Teatro / Evento">
 
-    <div>
-      <label>Data do Show</label>
-      <input type="date" id="dataShow">
-    </div>
+  <label>Data do Show</label>
+  <input type="date" id="dataShow">
 
-    <div>
-      <label>Responsável</label>
-      <input type="text" id="responsavel" placeholder="Ex: Edy">
-    </div>
-  </div>
-
-  <br>
+  <label>Responsável</label>
+  <input type="text" id="responsavel" placeholder="Ex: Edy">
 
   <button class="start" onclick="iniciarShow()">▶ Iniciar Show</button>
   <button class="stop" onclick="finalizarShow()">■ Finalizar Show</button>
@@ -185,11 +178,11 @@ th{
   <p><strong>Tempo Total:</strong> <span id="totalTexto">00:00:00</span></p>
 
   <label>Observações do Show</label>
-  <textarea id="observacoes" placeholder="Descreva atrasos, pausas, qualidade do tempo, início real, finalização e detalhes técnicos..."></textarea>
+  <textarea id="observacoes" placeholder="Descreva pausas, atrasos, qualidade do tempo, início real e finalização..."></textarea>
 </section>
 
 <section class="card">
-  <h2>📋 Histórico de Shows Registrados</h2>
+  <h2>📋 Histórico Salvo</h2>
 
   <table>
     <thead>
@@ -199,7 +192,7 @@ th{
         <th>Data</th>
         <th>Início</th>
         <th>Fim</th>
-        <th>Tempo Total</th>
+        <th>Tempo</th>
         <th>Responsável</th>
         <th>Observações</th>
       </tr>
@@ -215,25 +208,29 @@ let fim = null;
 let intervalo = null;
 let segundos = 0;
 
-let historico = JSON.parse(localStorage.getItem("historicoShowsVideo")) || [];
+let historico = JSON.parse(localStorage.getItem("historicoShowsCameraFrontal")) || [];
 
 function atualizarRelogio(){
   document.getElementById("relogio").innerText =
   "Tempo real: " + new Date().toLocaleString("pt-BR");
 }
+
 setInterval(atualizarRelogio,1000);
 atualizarRelogio();
 
 async function abrirCamera(){
   try{
     stream = await navigator.mediaDevices.getUserMedia({
-      video:true,
+      video:{
+        facingMode:"user"
+      },
       audio:true
     });
 
     document.getElementById("video").srcObject = stream;
+
   }catch(e){
-    alert("Não foi possível acessar a câmera. Verifique a permissão do navegador.");
+    alert("Não foi possível acessar a câmera frontal. Verifique a permissão do navegador.");
   }
 }
 
@@ -264,6 +261,7 @@ function iniciarShow(){
   fim = null;
   segundos = 0;
 
+  document.getElementById("timer").innerText = "00:00:00";
   document.getElementById("inicioTexto").innerText = inicio.toLocaleString("pt-BR");
   document.getElementById("fimTexto").innerText = "-";
   document.getElementById("totalTexto").innerText = "00:00:00";
@@ -300,11 +298,11 @@ function finalizarShow(){
   };
 
   historico.push(registro);
-  localStorage.setItem("historicoShowsVideo", JSON.stringify(historico));
+  localStorage.setItem("historicoShowsCameraFrontal", JSON.stringify(historico));
 
   mostrarHistorico();
 
-  alert("Show finalizado e salvo no histórico.");
+  alert("Show finalizado e salvo no histórico do navegador.");
 }
 
 function mostrarHistorico(){
@@ -328,16 +326,15 @@ function mostrarHistorico(){
 }
 
 function limparHistorico(){
-  if(confirm("Deseja apagar todo o histórico?")){
+  if(confirm("Deseja apagar todo o histórico salvo?")){
     historico = [];
-    localStorage.removeItem("historicoShowsVideo");
+    localStorage.removeItem("historicoShowsCameraFrontal");
     mostrarHistorico();
   }
 }
 
 mostrarHistorico();
 </script>
-<hr>
-<a href="index01.html"><h3>Registrar Novo Show</h3></a>
+
 </body>
 </html>
