@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Captação de Show - Câmera Frontal</title>
+<title>Captação de Show - Câmera Traseira</title>
 
 <style>
 body{
@@ -54,7 +54,9 @@ input,textarea{
   margin-bottom:10px;
 }
 
-textarea{min-height:80px}
+textarea{
+  min-height:80px;
+}
 
 button{
   width:100%;
@@ -66,10 +68,25 @@ button{
   cursor:pointer;
 }
 
-.start{background:#00ff88;color:#000}
-.stop{background:#ff2b2b;color:white}
-.pdf{background:#ffd700;color:#000}
-.clear{background:#555;color:white}
+.start{
+  background:#00ff88;
+  color:#000;
+}
+
+.stop{
+  background:#ff2b2b;
+  color:white;
+}
+
+.pdf{
+  background:#ffd700;
+  color:#000;
+}
+
+.clear{
+  background:#555;
+  color:white;
+}
 
 table{
   width:100%;
@@ -98,6 +115,7 @@ th{
 }
 
 @media print{
+
   body{
     background:white!important;
     color:black!important;
@@ -132,208 +150,403 @@ th{
 <body>
 
 <header>
-  <h1>🎥 Captação de Show em Tempo Real</h1>
-  <p>Câmera frontal do celular + cronômetro + relatório em PDF</p>
+
+  <h1>
+    🎥 Captação de Show em Tempo Real
+  </h1>
+
+  <p>
+    Sistema com câmera traseira + cronômetro + PDF
+  </p>
+
   <div id="relogio"></div>
+
 </header>
 
 <section class="card no-print">
-  <h2>📱 Câmera Frontal</h2>
+
+  <h2>
+    📷 Câmera Traseira do Celular
+  </h2>
 
   <div class="info">
-    O histórico fica salvo no navegador do celular.  
-    O vídeo aparece ao vivo, mas não é gravado automaticamente.
+
+    Histórico salvo no navegador do celular.<br>
+    O vídeo é exibido ao vivo para calcular o tempo do show.
+
   </div>
 
-  <video id="video" autoplay muted playsinline></video>
+  <video id="video"
+  autoplay
+  muted
+  playsinline></video>
 
-  <button class="start" onclick="abrirCamera()">📷 Ativar Câmera Frontal</button>
-  <button class="stop" onclick="pararCamera()">⛔ Parar Câmera</button>
+  <button class="start"
+  onclick="abrirCamera()">
+  📷 Ativar Câmera Traseira
+  </button>
+
+  <button class="stop"
+  onclick="pararCamera()">
+  ⛔ Parar Câmera
+  </button>
+
 </section>
 
 <section class="card">
-  <h2>⏱ Cronômetro do Show</h2>
 
-  <div class="timer" id="timer">00:00:00</div>
+  <h2>
+    ⏱ Cronômetro do Show
+  </h2>
+
+  <div class="timer" id="timer">
+    00:00:00
+  </div>
 
   <label>Nome do Show</label>
-  <input type="text" id="nomeShow" placeholder="Ex: Pocket Show Michael">
+
+  <input type="text"
+  id="nomeShow"
+  placeholder="Ex: Pocket Show Michael">
 
   <label>Local</label>
-  <input type="text" id="localShow" placeholder="Ex: Teatro / Evento">
+
+  <input type="text"
+  id="localShow"
+  placeholder="Ex: Teatro / Evento">
 
   <label>Data do Show</label>
-  <input type="date" id="dataShow">
+
+  <input type="date"
+  id="dataShow">
 
   <label>Responsável</label>
-  <input type="text" id="responsavel" placeholder="Ex: Edy">
 
-  <button class="start" onclick="iniciarShow()">▶ Iniciar Show</button>
-  <button class="stop" onclick="finalizarShow()">■ Finalizar Show</button>
-  <button class="pdf" onclick="window.print()">📄 Salvar Relatório em PDF</button>
-  <button class="clear" onclick="limparHistorico()">🗑 Limpar Histórico</button>
+  <input type="text"
+  id="responsavel"
+  placeholder="Ex: Edy">
 
-  <p><strong>Início:</strong> <span id="inicioTexto">-</span></p>
-  <p><strong>Fim:</strong> <span id="fimTexto">-</span></p>
-  <p><strong>Tempo Total:</strong> <span id="totalTexto">00:00:00</span></p>
+  <button class="start"
+  onclick="iniciarShow()">
+  ▶ Iniciar Show
+  </button>
 
-  <label>Observações do Show</label>
-  <textarea id="observacoes" placeholder="Descreva pausas, atrasos, qualidade do tempo, início real e finalização..."></textarea>
+  <button class="stop"
+  onclick="finalizarShow()">
+  ■ Finalizar Show
+  </button>
+
+  <button class="pdf"
+  onclick="window.print()">
+  📄 Salvar Relatório em PDF
+  </button>
+
+  <button class="clear"
+  onclick="limparHistorico()">
+  🗑 Limpar Histórico
+  </button>
+
+  <p>
+    <strong>Início:</strong>
+    <span id="inicioTexto">-</span>
+  </p>
+
+  <p>
+    <strong>Fim:</strong>
+    <span id="fimTexto">-</span>
+  </p>
+
+  <p>
+    <strong>Tempo Total:</strong>
+    <span id="totalTexto">00:00:00</span>
+  </p>
+
+  <label>Observações</label>
+
+  <textarea id="observacoes"
+  placeholder="Descreva pausas, atrasos, tempo real do show, qualidade ou detalhes técnicos..."></textarea>
+
 </section>
 
 <section class="card">
-  <h2>📋 Histórico Salvo</h2>
+
+  <h2>
+    📋 Histórico Salvo
+  </h2>
 
   <table>
+
     <thead>
+
       <tr>
+
         <th>Show</th>
+
         <th>Local</th>
+
         <th>Data</th>
+
         <th>Início</th>
+
         <th>Fim</th>
+
         <th>Tempo</th>
+
         <th>Responsável</th>
+
         <th>Observações</th>
+
       </tr>
+
     </thead>
+
     <tbody id="historico"></tbody>
+
   </table>
+
 </section>
 
 <script>
+
 let stream = null;
+
 let inicio = null;
+
 let fim = null;
+
 let intervalo = null;
+
 let segundos = 0;
 
-let historico = JSON.parse(localStorage.getItem("historicoShowsCameraFrontal")) || [];
+let historico =
+JSON.parse(
+localStorage.getItem("historicoShowsCameraTraseira")
+) || [];
 
 function atualizarRelogio(){
-  document.getElementById("relogio").innerText =
-  "Tempo real: " + new Date().toLocaleString("pt-BR");
+
+  document.getElementById("relogio").innerHTML =
+
+  "⏱ Tempo Real: " +
+
+  new Date().toLocaleString("pt-BR");
 }
 
 setInterval(atualizarRelogio,1000);
+
 atualizarRelogio();
 
 async function abrirCamera(){
+
   try{
+
     stream = await navigator.mediaDevices.getUserMedia({
+
       video:{
-        facingMode:"user"
+        facingMode:{
+          exact:"environment"
+        }
       },
+
       audio:true
     });
 
-    document.getElementById("video").srcObject = stream;
+    document.getElementById("video").srcObject =
+    stream;
 
   }catch(e){
-    alert("Não foi possível acessar a câmera frontal. Verifique a permissão do navegador.");
+
+    alert(
+    "Não foi possível acessar a câmera traseira."
+    );
   }
 }
 
 function pararCamera(){
+
   if(stream){
-    stream.getTracks().forEach(track => track.stop());
-    document.getElementById("video").srcObject = null;
+
+    stream.getTracks().forEach(track =>
+    track.stop()
+    );
+
+    document.getElementById("video").srcObject =
+    null;
   }
 }
 
 function formatarTempo(total){
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
 
-  return String(h).padStart(2,"0") + ":" +
-         String(m).padStart(2,"0") + ":" +
-         String(s).padStart(2,"0");
+  const h =
+  Math.floor(total / 3600);
+
+  const m =
+  Math.floor((total % 3600) / 60);
+
+  const s =
+  total % 60;
+
+  return String(h).padStart(2,"0")
+  + ":" +
+  String(m).padStart(2,"0")
+  + ":" +
+  String(s).padStart(2,"0");
 }
 
 function iniciarShow(){
+
   if(intervalo){
+
     alert("O show já está em andamento.");
+
     return;
   }
 
   inicio = new Date();
+
   fim = null;
+
   segundos = 0;
 
-  document.getElementById("timer").innerText = "00:00:00";
-  document.getElementById("inicioTexto").innerText = inicio.toLocaleString("pt-BR");
-  document.getElementById("fimTexto").innerText = "-";
-  document.getElementById("totalTexto").innerText = "00:00:00";
+  document.getElementById("timer").innerHTML =
+  "00:00:00";
+
+  document.getElementById("inicioTexto").innerHTML =
+  inicio.toLocaleString("pt-BR");
+
+  document.getElementById("fimTexto").innerHTML =
+  "-";
+
+  document.getElementById("totalTexto").innerHTML =
+  "00:00:00";
 
   intervalo = setInterval(()=>{
+
     segundos++;
-    document.getElementById("timer").innerText = formatarTempo(segundos);
-    document.getElementById("totalTexto").innerText = formatarTempo(segundos);
+
+    document.getElementById("timer").innerHTML =
+    formatarTempo(segundos);
+
+    document.getElementById("totalTexto").innerHTML =
+    formatarTempo(segundos);
+
   },1000);
 }
 
 function finalizarShow(){
+
   if(!intervalo){
+
     alert("Inicie o show primeiro.");
+
     return;
   }
 
   clearInterval(intervalo);
+
   intervalo = null;
 
   fim = new Date();
 
-  document.getElementById("fimTexto").innerText = fim.toLocaleString("pt-BR");
+  document.getElementById("fimTexto").innerHTML =
+  fim.toLocaleString("pt-BR");
 
   const registro = {
-    nomeShow: document.getElementById("nomeShow").value || "-",
-    localShow: document.getElementById("localShow").value || "-",
-    dataShow: document.getElementById("dataShow").value || "-",
-    responsavel: document.getElementById("responsavel").value || "-",
-    inicio: inicio.toLocaleString("pt-BR"),
-    fim: fim.toLocaleString("pt-BR"),
-    total: formatarTempo(segundos),
-    observacoes: document.getElementById("observacoes").value || "-"
+
+    nomeShow:
+    document.getElementById("nomeShow").value || "-",
+
+    localShow:
+    document.getElementById("localShow").value || "-",
+
+    dataShow:
+    document.getElementById("dataShow").value || "-",
+
+    responsavel:
+    document.getElementById("responsavel").value || "-",
+
+    inicio:
+    inicio.toLocaleString("pt-BR"),
+
+    fim:
+    fim.toLocaleString("pt-BR"),
+
+    total:
+    formatarTempo(segundos),
+
+    observacoes:
+    document.getElementById("observacoes").value || "-"
   };
 
   historico.push(registro);
-  localStorage.setItem("historicoShowsCameraFrontal", JSON.stringify(historico));
+
+  localStorage.setItem(
+  "historicoShowsCameraTraseira",
+  JSON.stringify(historico)
+  );
 
   mostrarHistorico();
 
-  alert("Show finalizado e salvo no histórico do navegador.");
+  alert(
+  "Show finalizado e salvo no histórico."
+  );
 }
 
 function mostrarHistorico(){
-  const tabela = document.getElementById("historico");
+
+  const tabela =
+  document.getElementById("historico");
+
   tabela.innerHTML = "";
 
   historico.forEach(item=>{
+
     tabela.innerHTML += `
-      <tr>
-        <td>${item.nomeShow}</td>
-        <td>${item.localShow}</td>
-        <td>${item.dataShow}</td>
-        <td>${item.inicio}</td>
-        <td>${item.fim}</td>
-        <td><strong>${item.total}</strong></td>
-        <td>${item.responsavel}</td>
-        <td>${item.observacoes}</td>
-      </tr>
+
+    <tr>
+
+      <td>${item.nomeShow}</td>
+
+      <td>${item.localShow}</td>
+
+      <td>${item.dataShow}</td>
+
+      <td>${item.inicio}</td>
+
+      <td>${item.fim}</td>
+
+      <td>
+      <strong>${item.total}</strong>
+      </td>
+
+      <td>${item.responsavel}</td>
+
+      <td>${item.observacoes}</td>
+
+    </tr>
+
     `;
   });
 }
 
 function limparHistorico(){
-  if(confirm("Deseja apagar todo o histórico salvo?")){
+
+  if(confirm(
+  "Deseja apagar todo histórico salvo?"
+  )){
+
     historico = [];
-    localStorage.removeItem("historicoShowsCameraFrontal");
+
+    localStorage.removeItem(
+    "historicoShowsCameraTraseira"
+    );
+
     mostrarHistorico();
   }
 }
 
 mostrarHistorico();
+
 </script>
 
 </body>
